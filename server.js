@@ -1,8 +1,16 @@
+import dns from "node:dns";
+
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+
 import express from "express";
+import dotenv from "dotenv";
 import { MongoClient, ObjectId } from "mongodb";
 
-const MONGO_URL = "mongodb://trisha:trisha123@localhost:27017";
-const dbname = "booksDB";
+dotenv.config();
+
+const MONGO_URL = process.env.MONGO_URI;
+const dbname = process.env.DB_NAME;
+const PORT = process.env.PORT || 8080;
 
 const client = new MongoClient(MONGO_URL);
 const app = express();
@@ -159,16 +167,19 @@ app.use((req, res) => {
 });
 
 // Connect to MongoDB before starting the server
+
 async function startServer() {
     try {
         await client.connect();
+
         db = client.db(dbname);
 
         console.log(`Connected to database: ${dbname}`);
 
-        app.listen(8080, () => {
-            console.log("Server running at http://localhost:8080");
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
         });
+
     } catch (err) {
         console.error("Error connecting to MongoDB:", err.message);
         process.exit(1);
